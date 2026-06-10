@@ -3,6 +3,8 @@ import { useState } from "react";
 import { FaInstagram, FaGithub, FaWhatsapp ,FaLinkedin } from "react-icons/fa";
 
 export default function Contact() {
+  
+  const API_URL = "https://portfolio-backend-ochre-six-41.vercel.app";
 
   // ✅ LINKS YAHAA (TOP PE)
   const instagram = "https://www.instagram.com/pandat_.mohit.47?igsh=aDR3d29jZmY1bWdu";
@@ -27,6 +29,8 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    const API_URL = "https://portfolio-backend-ochre-six-41.vercel.app";
 
     const { name, email, phone, address, message } = form;
 
@@ -56,7 +60,7 @@ export default function Contact() {
     try {
       console.log("========== NETWORK DEBUG START ==========");
       console.log("📤 REQUEST DETAILS:");
-      console.log("  URL: http://localhost:5000/api/contact");
+      console.log("  URL: https://portfolio-backend-ochre-six-41.vercel.app/api/contact");
       console.log("  Method: POST");
       console.log("  Headers: Content-Type: application/json");
       console.log("  Body:", JSON.stringify(requestData, null, 2));
@@ -64,7 +68,7 @@ export default function Contact() {
       
       const startTime = performance.now();
       
-      const response = await fetch("http://localhost:5000/api/contact", {
+const response = await fetch(`${API_URL}/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
