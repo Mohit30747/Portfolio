@@ -82,8 +82,8 @@ if (
 // ================= ROUTES =================
 
 // 🔥 TEST ROUTE
-app.get("/test", (req, res) => {
-  res.send("Server Working ✅");
+app.get("/", (req, res) => {
+  res.send("Backend is running✅");
 });
 
 // 🔥 TEST EMAIL
