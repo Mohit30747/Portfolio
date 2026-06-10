@@ -8,9 +8,19 @@ const twilio = require("twilio");
 const app = express();
 
 // ================= MIDDLEWARE =================
-app.use(cors());
-app.use(express.json());
+// ================= MIDDLEWARE =================
+app.use(
+  cors({
+    origin: [
+      "https://mohit-sharma-portfolio-two.vercel.app",
+      "http://localhost:5173"
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true
+  })
+);
 
+app.use(express.json());
 // ================= DB =================
 mongoose.connect(process.env.MONGO_URL)
 .then(() => console.log("✅ MongoDB Connected"))
