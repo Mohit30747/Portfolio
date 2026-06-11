@@ -4,7 +4,7 @@ import { FaInstagram, FaGithub, FaWhatsapp ,FaLinkedin } from "react-icons/fa";
 
 export default function Contact() {
   
-  const API_URL = "https://portfolio-backend-ochre-six-41.vercel.app";
+  const API_URL = "https://portfolio-backend-ochre-six-41.vercel.app/";
 
   // ✅ LINKS YAHAA (TOP PE)
   const instagram = "https://www.instagram.com/pandat_.mohit.47?igsh=aDR3d29jZmY1bWdu";
