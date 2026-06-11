@@ -157,6 +157,12 @@ app.post("/api/contact", async (req, res) => {
 });
 
 // ================= START =================
-app.listen(process.env.PORT || 5000, () => {
-  console.log("🚀 Server running");
-});
+// app.listen(process.env.PORT || 5000, () => {
+//   console.log("🚀 Server running");
+// });
+// ================= START =================
+// ❌ app.listen REMOVE
+
+const serverless = require("serverless-http");
+
+module.exports = serverless(app);
