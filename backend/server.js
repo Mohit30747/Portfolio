@@ -12,11 +12,11 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://mohit-sharma-portfolio-two.vercel.app",
-      "http://localhost:5173"
+      "https://mohit-portfolio-black.vercel.app",
+      "http://localhost:5173",
     ],
-    methods: ["GET", "POST", "OPTIONS"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
   })
 );
 
