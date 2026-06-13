@@ -173,24 +173,41 @@ export default function Contact() {
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
         <button
-          onClick={() => window.open(whatsapp, "_blank")}
-          className="flex items-center gap-3 rounded-2xl border border-green-500 px-6 py-5"
-        >
-          <FaWhatsapp size={28} />
-          Chat on WhatsApp
-        </button>
+  onClick={() => window.open(whatsapp, "_blank")}
+  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-green-500/50 bg-green-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-green-500/20 hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] active:scale-95"
+>
+  <FaWhatsapp
+    size={28}
+    className="text-green-400 transition-transform duration-300 group-hover:rotate-12"
+  />
+  Chat on WhatsApp
+</button>
 
         <button
-          onClick={() => window.open(linkedin, "_blank")}
-          className="flex items-center gap-3 rounded-2xl border border-blue-500 px-6 py-5"
-        >
-          <FaLinkedin size={28} />
-          Connect on LinkedIn
-        </button>
+  onClick={() => window.open(linkedin, "_blank")}
+  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-blue-500/50 bg-blue-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-blue-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
+>
+  <FaLinkedin
+    size={28}
+    className="text-blue-400 transition-transform duration-300 group-hover:rotate-12"
+  />
+  Connect on LinkedIn
+</button>
 
         <button
-          onClick={() => window.open(instagram, "_blank")}
-          className="flex items-center gap-3 rounded-2xl border border-pink-500 px-6 py-5"
+  onClick={() => window.open(instagram, "_blank")}
+  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-pink-500/50 bg-pink-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-pink-500/20 hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] active:scale-95"
+>
+  <FaInstagram
+    size={28}
+    className="text-pink-400 transition-transform duration-300 group-hover:rotate-12"
+  />
+  Follow on Instagram
+</button>
+
+        <button
+          onClick={() => window.open(github, "_blank")}
+          className="flex items-center gap-3 rounded-2xl border border-sky-500 px-6 py-5"
         >
           <FaInstagram size={28} />
           Follow on Instagram
@@ -198,9 +215,12 @@ export default function Contact() {
 
         <button
           onClick={() => window.open(github, "_blank")}
-          className="flex items-center gap-3 rounded-2xl border border-sky-500 px-6 py-5"
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-sky-500/50 bg-sky-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-sky-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
         >
-          <FaGithub size={28} />
+          <FaGithub
+            size={28}
+            className="text-sky-400 transition-transform duration-300 group-hover:rotate-12"
+          />
           Visit GitHub
         </button>
       </div>
