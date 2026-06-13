@@ -163,7 +163,7 @@ export default function Contact() {
             className={`w-full py-3 rounded-full font-semibold ${
               loading
                 ? "bg-gray-600 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
+                : "bg-blue-500 hover:bg-blue-700 transition-colors duration-300"
             }`}
           >
             {loading ? "Sending..." : "Send Message ✉️"}
@@ -204,14 +204,6 @@ export default function Contact() {
   />
   Follow on Instagram
 </button>
-
-        <button
-          onClick={() => window.open(github, "_blank")}
-          className="flex items-center gap-3 rounded-2xl border border-sky-500 px-6 py-5"
-        >
-          <FaInstagram size={28} />
-          Follow on Instagram
-        </button>
 
         <button
           onClick={() => window.open(github, "_blank")}
