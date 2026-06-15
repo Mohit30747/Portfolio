@@ -1,13 +1,23 @@
 const mongoose = require("mongoose");
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected) {
+    console.log("✅ MongoDB Already Connected");
+    return;
+  }
+
   try {
-await mongoose.connect(process.env.MONGO_URL);    console.log("MongoDB Connected 🔥");
-    return true;
+    const db = await mongoose.connect(process.env.MONGO_URL);
+
+    isConnected = db.connections[0].readyState === 1;
+
+    console.log("✅ MongoDB Connected 🔥");
   } catch (error) {
-    console.log("⚠️  MongoDB Connection Error - Using JSON file storage instead");
-    console.log("Error details:", error.message);
-    return false;
+    console.log("❌ MongoDB Connection Error");
+    console.log(error.message);
+    throw error;
   }
 };
 
