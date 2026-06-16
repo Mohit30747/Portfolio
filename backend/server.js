@@ -129,6 +129,7 @@ app.get("/test-db", async (req, res) => {
     await mongoose.connect(process.env.MONGO_URL);
     res.send("MongoDB Connected ✅");
   } catch (err) {
+    console.log("MongoDB Error:", err);
     res.send("MongoDB Error: " + err.message);
   }
 });
