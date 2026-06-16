@@ -125,12 +125,11 @@ app.get("/test-email", async (req, res) => {
 
 // 🔥 CONTACT API
 app.get("/test-db", async (req, res) => {
-  const db = await connectDB();
-
-  if (db) {
+  try {
+    await mongoose.connect(process.env.MONGO_URL);
     res.send("MongoDB Connected ✅");
-  } else {
-    res.send("MongoDB Failed ❌");
+  } catch (err) {
+    res.send("MongoDB Error: " + err.message);
   }
 });
 
