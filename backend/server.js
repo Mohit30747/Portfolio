@@ -25,14 +25,20 @@ app.use(express.json());
 let isConnected = false;
 
 const connectDB = async () => {
-  if (isConnected) return;
+  if (isConnected) return true;
 
   try {
     await mongoose.connect(process.env.MONGO_URL);
+
     isConnected = true;
+
     console.log("✅ MongoDB Connected");
+
+    return true;
   } catch (err) {
     console.log("❌ DB Error:", err.message);
+
+    return false;
   }
 };
 
@@ -45,7 +51,9 @@ const MessageSchema = new mongoose.Schema({
   message: String,
 }, { timestamps: true });
 
-const Message = mongoose.model("Message", MessageSchema);
+const Message =
+  mongoose.models.Message ||
+  mongoose.model("Message", MessageSchema);
 
 // ================= EMAIL =================
 let transporter = null;
@@ -116,6 +124,16 @@ app.get("/test-email", async (req, res) => {
 });
 
 // 🔥 CONTACT API
+app.get("/test-db", async (req, res) => {
+  const db = await connectDB();
+
+  if (db) {
+    res.send("MongoDB Connected ✅");
+  } else {
+    res.send("MongoDB Failed ❌");
+  }
+});
+
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, phone, address, message } = req.body;
@@ -168,4 +186,13 @@ app.post("/api/contact", async (req, res) => {
 });
 
 // ================= START =================
+
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
 module.exports = app;
