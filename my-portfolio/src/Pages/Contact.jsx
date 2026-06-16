@@ -54,39 +54,50 @@ export default function Contact() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          address: address.trim(),
-          message: message.trim(),
-        }),
-      });
+  const response = await fetch(`${API_URL}/api/contact`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      message: message.trim(),
+    }),
+  });
 
-      const data = await response.json();
+  const text = await response.text();
 
-      if (response.ok) {
-        alert(data.message || "Message sent successfully ✅");
+  console.log("STATUS:", response.status);
+  console.log("RESPONSE:", text);
 
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          address: "",
-          message: "",
-        });
-      } else {
-        alert(data.error || "Something went wrong");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Failed to connect to server");
-    } finally {
+  let data = {};
+
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    console.log("Response is not JSON");
+  }
+
+  if (response.ok) {
+    alert(data.message || "Message sent successfully ✅");
+
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      message: "",
+    });
+  } else {
+    alert(data.error || text || "Server Error");
+  }
+} catch (error) {
+  console.error("Fetch Error:", error);
+  alert("Failed to connect to server");
+} finally {
       setLoading(false);
     }
   };
