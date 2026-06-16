@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
-const twilio = require("twilio");
+// const twilio = require("twilio");
 
 const app = express();
 
@@ -78,24 +78,24 @@ if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
   });
 }
 
-// ================= TWILIO =================
-let twilioClient = null;
+// // ================= TWILIO =================
+// let twilioClient = null;
 
-if (
-  process.env.TWILIO_ACCOUNT_SID &&
-  process.env.TWILIO_ACCOUNT_SID.startsWith("AC") &&
-  process.env.TWILIO_AUTH_TOKEN
-) {
-  try {
-    twilioClient = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN
-    );
-    console.log("✅ SMS Ready");
-  } catch (err) {
-    console.log("❌ Twilio Error:", err.message);
-  }
-}
+// if (
+//   process.env.TWILIO_ACCOUNT_SID &&
+//   process.env.TWILIO_ACCOUNT_SID.startsWith("AC") &&
+//   process.env.TWILIO_AUTH_TOKEN
+// ) {
+//   try {
+//     twilioClient = twilio(
+//       process.env.TWILIO_ACCOUNT_SID,
+//       process.env.TWILIO_AUTH_TOKEN
+//     );
+//     console.log("✅ SMS Ready");
+//   } catch (err) {
+//     console.log("❌ Twilio Error:", err.message);
+//   }
+// }
 
 // ================= ROUTES =================
 
