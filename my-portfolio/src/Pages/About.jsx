@@ -37,12 +37,12 @@ export default function About() {
         <div className="mt-16 grid md:grid-cols-3 gap-6">
 
           <div className="bg-gray-800 p-6 rounded-xl hover:scale-105 transition page-card">
-            <h2 className="text-blue-500 text-2xl font-bold">10+</h2>
+            <h2 className="text-blue-500 text-2xl font-bold">15+</h2>
             <p className="text-gray-400 text-sm">Projects</p>
           </div>
 
           <div className="bg-gray-800 p-6 rounded-xl hover:scale-105 transition page-card">
-            <h2 className="text-blue-500 text-2xl font-bold">1+</h2>
+            <h2 className="text-blue-500 text-2xl font-bold">2 years+</h2>
             <p className="text-gray-400 text-sm">Experience</p>
           </div>
 

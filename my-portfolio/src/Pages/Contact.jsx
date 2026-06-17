@@ -110,16 +110,16 @@ export default function Contact() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.65 }}
-      className="min-h-screen text-white p-10 page-panel"
+      className="min-h-screen text-white p-10 page-panel bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900"
     >
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl text-center font-bold mb-5">
+        <h2 className="text-5xl text-center font-bold mb-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient-x">
           Contact Me
         </h2>
 
         <form
           onSubmit={handleSubmit}
-          className="max-w-xl mx-auto space-y-4 bg-gray-900 p-6 rounded-3xl border border-gray-700 shadow-xl"
+          className="max-w-xl mx-auto space-y-4 bg-gray-900 p-6 rounded-3xl border border-gray-700 shadow-xl transition-all duration-500 hover:scale-[1.02] hover:border-white/50 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)] backdrop-blur-md"
         >
           <h1 className="text-center text-2xl font-semibold">
             Send me a message
@@ -131,7 +131,7 @@ export default function Contact() {
             placeholder="Your Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700"
+            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transition-all duration-300 focus:border-white focus:shadow-[0_0_20px_rgba(255,255,255,0.35)] hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] outline-none"
           />
 
           <input
@@ -140,7 +140,7 @@ export default function Contact() {
             placeholder="Your Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700"
+            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transition-all duration-300 focus:border-white focus:shadow-[0_0_20px_rgba(255,255,255,0.35)] hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] outline-none"
           />
 
           <input
@@ -149,7 +149,7 @@ export default function Contact() {
             placeholder="Your Phone"
             value={form.phone}
             onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700"
+            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transition-all duration-300 focus:border-white focus:shadow-[0_0_20px_rgba(255,255,255,0.35)] hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] outline-none"
           />
 
           <input
@@ -158,7 +158,7 @@ export default function Contact() {
             placeholder="Your Address"
             value={form.address}
             onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700"
+            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transition-all duration-300 focus:border-white focus:shadow-[0_0_20px_rgba(255,255,255,0.35)] hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] outline-none"
           />
 
           <textarea
@@ -166,7 +166,7 @@ export default function Contact() {
             placeholder="Your Message"
             value={form.message}
             onChange={handleChange}
-            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 h-32"
+            className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 h-32 transition-all duration-300 focus:border-white focus:shadow-[0_0_20px_rgba(255,255,255,0.35)] hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] outline-none"
           />
 
           <button
@@ -174,8 +174,8 @@ export default function Contact() {
             disabled={loading}
             className={`w-full py-3 rounded-full font-semibold ${
               loading
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-700 transition-colors duration-300"
+                ? "bg-gray-800 cursor-not-allowed"
+                : " bg-blue-700 text-black hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.35)] transition-colors duration-500 "
             }`}
           >
             {loading ? "Sending..." : "Send Message ✉️"}
