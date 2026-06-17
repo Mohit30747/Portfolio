@@ -94,6 +94,26 @@ app.get("/test-db", async (req, res) => {
   });
 });
 
+ app.get("/test-email", async (req, res) => {
+  try {
+    if (!transporter) {
+      return res.status(500).send("❌ Email not configured");
+    }
+
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: process.env.NOTIFY_EMAIL,
+      subject: "Test Email ✅",
+      text: "Email is working successfully",
+    });
+
+    res.send("✅ Email Sent");
+  } catch (err) {
+    console.error("TEST EMAIL ERROR:", err);
+    res.status(500).send(err.message);
+  }
+});
+
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, phone, address, message } = req.body;
