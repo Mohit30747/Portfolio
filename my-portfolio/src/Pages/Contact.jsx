@@ -54,7 +54,8 @@ export default function Contact() {
     setLoading(true);
 
     try {
-  const response = await fetch(`${API_URL}/api/contact`, {
+
+      const response = await fetch(`${API_URL}/api/contact`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -70,7 +71,6 @@ export default function Contact() {
 
   const text = await response.text();
 
-  console.log("STATUS:", response.status);
   console.log("STATUS:", response.status);
   console.log("RESPONSE:", text);
 
@@ -97,7 +97,11 @@ export default function Contact() {
   }
 } catch (error) {
   console.error("Fetch Error:", error);
-  alert("Failed to connect to server");
+
+  alert("ERROR: " + error.message);
+
+  // alert("Failed to connect to server");
+  
 } finally {
       setLoading(false);
     }
