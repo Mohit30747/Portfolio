@@ -54,12 +54,12 @@ export default function Contact() {
     setLoading(true);
 
     try {
-
       const response = await fetch(`${API_URL}/api/contact`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
     },
+    mode: "cors",
     body: JSON.stringify({
       name: name.trim(),
       email: email.trim(),
@@ -79,8 +79,11 @@ export default function Contact() {
   try {
     data = JSON.parse(text);
   } catch (error) {
-    console.log("Response is not JSON");
-  }
+  console.error("FULL ERROR:", error);
+
+  alert(error.name);
+  alert(error.message);
+}
 
   if (response.ok) {
     alert(data.message || "Message sent successfully ✅");
