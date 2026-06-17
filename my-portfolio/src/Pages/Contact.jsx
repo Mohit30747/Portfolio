@@ -71,6 +71,7 @@ export default function Contact() {
   const text = await response.text();
 
   console.log("STATUS:", response.status);
+  console.log("STATUS:", response.status);
   console.log("RESPONSE:", text);
 
   let data = {};
