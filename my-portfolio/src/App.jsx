@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./Components/Layout";
-import Footer from "./Pages/Footer";
+import CursorGlow from "./Components/CursorGlow";
 
 import Home from "./Pages/Home";
 import About from "./Pages/About";
@@ -13,6 +13,8 @@ import Messages from "./Pages/Messages";
 export default function App() {
   return (
     <BrowserRouter>
+      <CursorGlow />
+
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
