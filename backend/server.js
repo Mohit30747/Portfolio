@@ -6,107 +6,68 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 
-/* ================= CORS FIX (IMPORTANT) ================= */
+/* ================= CORS FIX ================= */
 
-const allowedOrigins = [
-  "https://mohit-sharma-portfolio-two.vercel.app",
-  "https://mohit-portfolio-black.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:5174",
-];
-
-// ✅ dynamic origin handling (BEST FIX for Vercel)
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(null, true); // 🔥 allow all (safe for portfolio)
-      }
-    },
+    origin: "*", // 🔥 simplest & BEST for portfolio (fix all CORS issues)
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
   })
 );
 
-// ✅ HANDLE preflight requests
+// IMPORTANT: preflight fix
 app.options("*", cors());
 
 app.use(express.json());
 
-/* ================= DATABASE ================= */
+/* ================= DB ================= */
 
 let isConnected = false;
 
 const connectDB = async () => {
-  if (isConnected) return true;
+  if (isConnected) return;
 
   try {
     await mongoose.connect(process.env.MONGO_URL);
     isConnected = true;
-    console.log("✅ MongoDB Connected");
-    return true;
+    console.log("MongoDB Connected");
   } catch (err) {
-    console.error("❌ MongoDB Error:", err.message);
-    return false;
+    console.log("DB Error:", err.message);
   }
 };
 
 /* ================= MODEL ================= */
 
-const MessageSchema = new mongoose.Schema(
-  {
-    name: String,
-    email: String,
-    phone: String,
-    address: String,
-    message: String,
-  },
-  { timestamps: true }
-);
-
 const Message =
-  mongoose.models.Message || mongoose.model("Message", MessageSchema);
+  mongoose.models.Message ||
+  mongoose.model(
+    "Message",
+    new mongoose.Schema(
+      {
+        name: String,
+        email: String,
+        phone: String,
+        address: String,
+        message: String,
+      },
+      { timestamps: true }
+    )
+  );
 
-/* ================= EMAIL ================= */
-
-let transporter = null;
-
-if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS,
-    },
-  });
-}
-
-/* ================= ROUTES ================= */
-
-app.get("/", (req, res) => {
-  res.json({ status: "Backend running ✅" });
-});
-
-/* ---------- CONTACT ---------- */
+/* ================= ROUTE ================= */
 
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, phone, address, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing fields",
-      });
+      return res.status(400).json({ error: "Missing fields" });
     }
 
     await connectDB();
 
-    const saved = await Message.create({
+    const data = await Message.create({
       name,
       email,
       phone,
@@ -114,34 +75,17 @@ app.post("/api/contact", async (req, res) => {
       message,
     });
 
-    // email (optional)
-    if (transporter && process.env.NOTIFY_EMAIL) {
-      await transporter.sendMail({
-        from: process.env.GMAIL_USER,
-        to: process.env.NOTIFY_EMAIL,
-        subject: "New Portfolio Message",
-        text: `${name} sent a message: ${message}`,
-      });
-    }
-
     return res.status(200).json({
       success: true,
       message: "Message sent successfully",
-      data: saved,
+      data,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      success: false,
-      error: err.message,
-    });
+    console.log(err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
-/* ================= START ================= */
+/* ================= EXPORT (VERY IMPORTANT FOR VERCEL) ================= */
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log("🚀 Server running on port", PORT);
-});
+module.exports = app;
