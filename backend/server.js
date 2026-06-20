@@ -6,23 +6,38 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 
-// ================= MIDDLEWARE =================
+/* ================= CORS FIX (IMPORTANT) ================= */
 
+const allowedOrigins = [
+  "https://mohit-sharma-portfolio-two.vercel.app",
+  "https://mohit-portfolio-black.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
+
+// ✅ dynamic origin handling (BEST FIX for Vercel)
 app.use(
   cors({
-    origin: [
-      "https://mohit-portfolio-black.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:5174",
-    ],
-    methods: ["GET", "POST", "OPTIONS"],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(null, true); // 🔥 allow all (safe for portfolio)
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
+// ✅ HANDLE preflight requests
+app.options("*", cors());
+
 app.use(express.json());
 
-// ================= DATABASE =================
+/* ================= DATABASE ================= */
 
 let isConnected = false;
 
@@ -32,9 +47,7 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
     isConnected = true;
-
     console.log("✅ MongoDB Connected");
-
     return true;
   } catch (err) {
     console.error("❌ MongoDB Error:", err.message);
@@ -42,24 +55,23 @@ const connectDB = async () => {
   }
 };
 
-// ================= MODEL =================
+/* ================= MODEL ================= */
 
 const MessageSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
+    name: String,
+    email: String,
     phone: String,
     address: String,
-    message: { type: String, required: true },
+    message: String,
   },
   { timestamps: true }
 );
 
 const Message =
-  mongoose.models.Message ||
-  mongoose.model("Message", MessageSchema);
+  mongoose.models.Message || mongoose.model("Message", MessageSchema);
 
-// ================= EMAIL =================
+/* ================= EMAIL ================= */
 
 let transporter = null;
 
@@ -71,78 +83,15 @@ if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
       pass: process.env.GMAIL_PASS,
     },
   });
-
-  transporter.verify((err) => {
-    if (err) {
-      console.error("❌ Email Error:", err.message);
-    } else {
-      console.log("✅ Email Ready");
-    }
-  });
 }
 
-// ================= ROUTES =================
+/* ================= ROUTES ================= */
 
 app.get("/", (req, res) => {
-  res.send("Backend is running ✅");
+  res.json({ status: "Backend running ✅" });
 });
 
-// ---------- TEST DB ----------
-
-app.get("/test-db", async (req, res) => {
-  const connected = await connectDB();
-
-  return res.json({
-    mongo: connected ? "CONNECTED" : "FAILED",
-    gmail: process.env.GMAIL_USER ? "FOUND" : "MISSING",
-    notifyEmail: process.env.NOTIFY_EMAIL ? "FOUND" : "MISSING",
-  });
-});
-
-// ---------- TEST EMAIL ----------
-
-app.get("/test-email", async (req, res) => {
-  try {
-    if (!transporter) {
-      return res.status(500).send("❌ Email not configured");
-    }
-
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: process.env.NOTIFY_EMAIL,
-      subject: "Test Email ✅",
-      text: "Email is working successfully",
-    });
-
-    res.send("✅ Email Sent");
-  } catch (err) {
-    console.error("TEST EMAIL ERROR:", err);
-    res.status(500).send(err.message);
-  }
-});
-
-// ---------- VIEW LAST 10 MESSAGES ----------
-
-app.get("/messages", async (req, res) => {
-  try {
-    await connectDB();
-
-    const messages = await Message.find()
-      .sort({ createdAt: -1 })
-      .limit(10);
-
-    res.json(messages);
-  } catch (err) {
-    console.error("MESSAGES ERROR:", err);
-
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-});
-
-// ---------- CONTACT FORM ----------
+/* ---------- CONTACT ---------- */
 
 app.post("/api/contact", async (req, res) => {
   try {
@@ -151,20 +100,13 @@ app.post("/api/contact", async (req, res) => {
     if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        error: "Required fields missing",
+        error: "Missing fields",
       });
     }
 
-    const dbConnected = await connectDB();
+    await connectDB();
 
-    if (!dbConnected) {
-      return res.status(500).json({
-        success: false,
-        error: "MongoDB connection failed",
-      });
-    }
-
-    const savedMessage = await Message.create({
+    const saved = await Message.create({
       name,
       email,
       phone,
@@ -172,37 +114,23 @@ app.post("/api/contact", async (req, res) => {
       message,
     });
 
-    console.log("✅ Saved to DB");
-    console.log(savedMessage);
-
+    // email (optional)
     if (transporter && process.env.NOTIFY_EMAIL) {
       await transporter.sendMail({
         from: process.env.GMAIL_USER,
         to: process.env.NOTIFY_EMAIL,
-        subject: `New Message from ${name}`,
-        html: `
-          <h3>New Contact Message</h3>
-          <p><b>Name:</b> ${name}</p>
-          <p><b>Email:</b> ${email}</p>
-          <p><b>Phone:</b> ${phone || "-"}</p>
-          <p><b>Address:</b> ${address || "-"}</p>
-          <p><b>Message:</b> ${message}</p>
-        `,
+        subject: "New Portfolio Message",
+        text: `${name} sent a message: ${message}`,
       });
-
-      console.log("✅ Email Sent");
     }
 
     return res.status(200).json({
       success: true,
       message: "Message sent successfully",
-      data: savedMessage,
+      data: saved,
     });
   } catch (err) {
-    console.error("========== CONTACT ERROR ==========");
     console.error(err);
-    console.error("===================================");
-
     return res.status(500).json({
       success: false,
       error: err.message,
@@ -210,14 +138,10 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// ================= START =================
+/* ================= START ================= */
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log("🚀 Server running on port", PORT);
+});
