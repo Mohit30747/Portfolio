@@ -1,18 +1,30 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
+let isConnected = false; // Connection leakage rokne ke liye status check
 
 const connectDB = async () => {
-try {
-await mongoose.connect(process.env.MONGO_URL);
+  if (isConnected) {
+    console.log("=> Using existing database connection");
+    return true;
+  }
 
-```
-console.log("✅ MongoDB Connected");
-return true;
-```
+  if (!process.env.MONGO_URL) {
+    console.error("❌ MONGO_URL environment variable is missing!");
+    return false;
+  }
 
-} catch (error) {
-console.error("❌ MongoDB Connection Error:", error.message);
-return false;
-}
+  try {
+    const db = await mongoose.connect(process.env.MONGO_URL, {
+      bufferCommands: false, // Serverless environments ke liye recommended config
+    });
+    
+    isConnected = db.connections.readyState === 1;
+    console.log("✅ MongoDB Connected Successfully");
+    return true;
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error.message);
+    return false;
+  }
 };
 
-module.exports = connectDB;
+export default connectDB; // require ki jagah export default use karein
