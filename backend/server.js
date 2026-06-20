@@ -1,25 +1,4 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const nodemailer = require("nodemailer");
-
-const app = express();
-
-/* ================= CORS FIX ================= */
-
-app.use(
-  cors({
-    origin: "*", // 🔥 simplest & BEST for portfolio (fix all CORS issues)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-// IMPORTANT: preflight fix
-app.options("*", cors());
-
-app.use(express.json());
+import mongoose from "mongoose";
 
 /* ================= DB ================= */
 
@@ -28,13 +7,8 @@ let isConnected = false;
 const connectDB = async () => {
   if (isConnected) return;
 
-  try {
-    await mongoose.connect(process.env.MONGO_URL);
-    isConnected = true;
-    console.log("MongoDB Connected");
-  } catch (err) {
-    console.log("DB Error:", err.message);
-  }
+  await mongoose.connect(process.env.MONGO_URL);
+  isConnected = true;
 };
 
 /* ================= MODEL ================= */
@@ -55,9 +29,22 @@ const Message =
     )
   );
 
-/* ================= ROUTE ================= */
+/* ================= MAIN HANDLER ================= */
 
-app.post("/api/contact", async (req, res) => {
+export default async function handler(req, res) {
+  /* ✅ CORS FIX (MOST IMPORTANT) */
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const { name, email, phone, address, message } = req.body;
 
@@ -84,8 +71,4 @@ app.post("/api/contact", async (req, res) => {
     console.log(err);
     return res.status(500).json({ error: err.message });
   }
-});
-
-/* ================= EXPORT (VERY IMPORTANT FOR VERCEL) ================= */
-
-module.exports = app;
+}
