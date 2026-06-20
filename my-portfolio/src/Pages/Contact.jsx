@@ -226,7 +226,7 @@ export default function Contact() {
 
         <button
           onClick={() => window.open(github, "_blank")}
-          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-sky-500/50 bg-sky-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-sky-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-sky-500/50 bg-sky-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-sky-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95 "
         >
           <FaGithub
             size={28}

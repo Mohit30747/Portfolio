@@ -1,68 +1,167 @@
 import { motion } from "framer-motion";
+import Tilt from "react-parallax-tilt";
+import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 
 const projects = [
   {
-    title: "Portfolio and Website",
-    description: "Modern personal portfolio with React, Tailwind, and animations.",
-    tags: ["React", "Tailwind", "Framer Motion"],
-    
-    link: "#",
-  },
-  {
-    title: "E-commerce UI",
-    description: "Responsive product listing and checkout design with smooth interactions.",
-    tags: ["React", "CSS", "UI"],
-    link: "#",
+    title: "Portfolio Website",
+    description:
+      "Modern animated portfolio built with React, Tailwind CSS, Framer Motion and Node.js backend.",
+    tags: ["React", "Tailwind", "MongoDB"],
+    github: "https://github.com/Mohit30747",
+    demo: "#",
   },
   {
     title: "Admin Dashboard",
-    description: "Analytics dashboard with charts, cards, and filters.",
-    tags: ["React", "Chart.js", "Responsive"],
-    link: "#",
+    description:
+      "Professional dashboard with charts, analytics, authentication and responsive design.",
+    tags: ["React", "Chart.js", "Node.js"],
+    github: "#",
+    demo: "#",
+  },
+  {
+    title: "E-Commerce Store",
+    description:
+      "Full responsive online store with cart, payment flow and product management.",
+    tags: ["React", "Express", "MongoDB"],
+    github: "#",
+    demo: "#",
   },
 ];
 
 export default function Project() {
   return (
-    <motion.section
+    <section
       id="project"
-      initial={{ opacity:0, y:40 }}
-      whileInView={{ opacity:1, y:0 }}
-      viewport={{ once:true, amount:0.2 }}
-      transition={{ duration:0.65 }}
-      className="min-h-screen text-white py-16 px-6 page-panel">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="text-xs uppercase tracking-[0.25em] text-blue-400">Projects</p>
-          <h2 className="text-4xl md:text-5xl font-bold mt-2">Featured Work</h2>
-          <p className="text-gray-300 mt-3 max-w-2xl mx-auto">
-            Some of the web apps I built recently. Click to view details and source.
-          </p>
-        </div>
+      className="relative min-h-screen py-24 px-6 text-white overflow-hidden"
+    >
+      {/* Background Glow */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-500/20 blur-[180px] rounded-full" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/20 blur-[180px] rounded-full" />
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <article key={project.title} className="bg-gray-800/80 border border-gray-700 rounded-2xl p-5 hover:-translate-y-1 transition page-card">
-              <div className="flex justify-between items-start gap-2">
-                <div>
-                  <h3 className="text-xl font-semibold">{project.title}</h3>
-                  <p className="text-gray-300 mt-2 text-sm">{project.description}</p>
+      <div className="relative z-10 max-w-7xl mx-auto">
+
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: -70 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
+          <h2
+            className="text-6xl font-black bg-gradient-to-r
+            from-cyan-400 via-purple-500 to-pink-500
+            bg-clip-text text-transparent"
+          >
+            MY PROJECTS
+          </h2>
+
+          <p className="text-gray-400 mt-5 max-w-2xl mx-auto">
+            Some of my best work built using modern technologies and
+            beautiful user interfaces.
+          </p>
+        </motion.div>
+
+        {/* Cards */}
+        <div className="grid lg:grid-cols-3 gap-8">
+
+          {projects.map((project, index) => (
+            <Tilt
+              key={project.title}
+              tiltMaxAngleX={12}
+              tiltMaxAngleY={12}
+              glareEnable={true}
+              glareMaxOpacity={0.2}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 80 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.7,
+                  delay: index * 0.2,
+                }}
+                whileHover={{
+                  y: -10,
+                }}
+                className="
+                h-full
+                rounded-[30px]
+                p-8
+                bg-white/5
+                backdrop-blur-xl
+                border border-white/10
+                shadow-[0_0_40px_rgba(59,130,246,0.2)]
+                "
+              >
+                <h3 className="text-3xl font-bold text-cyan-400">
+                  {project.title}
+                </h3>
+
+                <p className="text-gray-300 mt-4 leading-7">
+                  {project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="
+                      px-3 py-1
+                      rounded-full
+                      bg-cyan-500/10
+                      border border-cyan-500/20
+                      text-cyan-300
+                      text-sm
+                      "
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-md border border-blue-500/30">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-              <a href={project.link} className="inline-block mt-5 text-blue-300 hover:text-blue-400 text-sm font-medium">
-                {/* View Project → */}
-              </a>
-            </article>
+
+                <div className="flex gap-4 mt-8">
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                    flex items-center gap-2
+                    px-4 py-2
+                    rounded-xl
+                    bg-white/10
+                    hover:bg-white/20
+                    transition
+                    "
+                  >
+                    <FaGithub />
+                    Code
+                  </a>
+
+                  <a
+                    href={project.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                    flex items-center gap-2
+                    px-4 py-2
+                    rounded-xl
+                    bg-cyan-500
+                    text-black
+                    font-semibold
+                    hover:scale-105
+                    transition
+                    "
+                  >
+                    <FaExternalLinkAlt />
+                    Live
+                  </a>
+                </div>
+              </motion.div>
+            </Tilt>
           ))}
+
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
