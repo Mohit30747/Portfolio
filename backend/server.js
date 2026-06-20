@@ -13,6 +13,7 @@ app.use(
     origin: [
       "https://mohit-portfolio-black.vercel.app",
       "http://localhost:5173",
+      "http://localhost:5174",
     ],
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true,

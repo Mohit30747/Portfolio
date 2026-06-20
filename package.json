@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
+    "cors": "^2.8.6",
     "framer-motion": "^12.36.0",
     "mongoose": "^9.4.1",
     "nodemon": "^3.1.14",
