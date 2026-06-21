@@ -8,7 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/api/message",
+      "src": "/api/contact",
       "dest": "server.js"
     }
   ]

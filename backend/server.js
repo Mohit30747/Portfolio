@@ -1,19 +1,30 @@
 import express from "express";
 import cors from "cors";
 import nodemailer from "nodemailer";
-import twilio from "twilio";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import connectDB from "./db.js"; // Aapki dynamic connection wali db.js file
+import connectDB from "./db.js"; // Aapki dynamic database connection wali db.js file
 
 // Load all system environment variables
 dotenv.config();
 
 const app = express();
 
-/* ================= 1. GLOBAL MIDDLEWARES ================= */
-app.use(cors({ origin: "*" })); // Kisi bhi domain se query access allow karne ke liye
-app.use(express.json()); // Incoming JSON payloads ko auto parse karne ke liye
+/* ================= 1. EXTRA-SOLID CORS & BODY PARSER ================= */
+app.use(express.json()); // Incoming JSON payloads ko parse karne ke liye
+
+// Vercel Serverless environment ke liye customized manual CORS middleware
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  
+  // Pre-flight OPTIONS request ko instant status 200 dekar return karein
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 /* ================= 2. DATABASE MODEL DEFINITION ================= */
 const MessageSchema = new mongoose.Schema(
@@ -29,34 +40,28 @@ const MessageSchema = new mongoose.Schema(
   }
 );
 
-// Model Caching: Next.js/Vercel serverless functions mein dynamic compilation error ko rokta hai
+// Model Caching: Serverless environment mein overwrite error ko rokta hai
 const Message = mongoose.models.Message || mongoose.model("Message", MessageSchema);
 
 /* ================= 3. UTILS & COMMUNICATION LOGIC ================= */
-// Twilio Integration Validation Check
-const twilioClient =
-  process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
-    ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    : null;
-
-// Gmail SMTP Server Config via Nodemailer Secure Connection Layer
+// Gmail SMTP Server Config via Nodemailer Secure Layer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS, // 16-Digit App Password (.env file format parsed)
+    pass: process.env.GMAIL_PASS, // 16-Digit App Password from .env
   },
 });
 
 /* ================= 4. MAIN ROUTE CONTROLLER (POST Only) ================= */
-// Aapne vercel.json mein routing engine setup kiya hai, isliye root '/' hit par capture hoga
+// vercel.json ne /api/contact ki request ko yahan bhej diya hai, isliye root '/' par handle hoga
 app.post("/", async (req, res) => {
   try {
     const { name, email, phone, address, message } = req.body;
 
     console.log("📩 Payload Ingested Successfully at Vercel Core:", req.body);
 
-    // A. Validation Strategy
+    // A. Field Validation Strategy
     if (!name || !email || !message) {
       return res.status(400).json({ 
         success: false, 
@@ -64,20 +69,20 @@ app.post("/", async (req, res) => {
       });
     }
 
-    // B. Database Operation
+    // B. Database Connection Management
     const isDbConnected = await connectDB();
     if (!isDbConnected) {
       return res.status(500).json({ 
         success: false, 
-        error: "Database Connectivity Failure: Could not build handshakes with MongoDB Atlas." 
+        error: "Database Connectivity Failure: Could not connect to MongoDB Atlas Cluster." 
       });
     }
 
-    // Live Insertion
+    // C. Write Document to MongoDB Atlas Cloud
     const savedDocument = await Message.create({ name, email, phone, address, message });
-    console.log("💾 MongoDB Cluster Write Operation Completed:", savedDocument._id);
+    console.log("💾 MongoDB Cluster Write Operation Completed ID:", savedDocument._id);
 
-    /* ================= 5. LINEAR NOTIFICATION DISPATCH (Vercel Core Compatible) ================= */
+    /* ================= 5. LINEAR NOTIFICATION DISPATCH (Vercel Serverless Sync) ================= */
     
     // Notification Phase A: Email Pipeline Execution
     try {
@@ -92,29 +97,13 @@ app.post("/", async (req, res) => {
       console.log("📧 Serverless Email Transport System Cleared:", emailInfo.messageId);
     } catch (mailErr) {
       console.error("❌ Non-Fatal Notification Error (Email):", mailErr.message);
-      // Agar email delivery fail bhi ho jaye, toh main response block nahi hoga aur user ko success dikhega
-    }
-
-    // Notification Phase B: SMS Pipeline Execution (via Twilio Node Core)
-    if (twilioClient && process.env.TWILIO_PHONE_NUMBER && !process.env.TWILIO_PHONE_NUMBER.includes("your_")) {
-      try {
-        const smsResponse = await twilioClient.messages.create({
-          body: `Portfolio Alert: New message from ${name} - "${message.substring(0, 45)}..."`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: process.env.YOUR_PHONE_NUMBER,
-        });
-        console.log("💬 Serverless SMS System Dispatched. SID:", smsResponse.sid);
-      } catch (smsErr) {
-        console.error("❌ Non-Fatal Notification Error (SMS):", smsErr.message);
-      }
-    } else {
-      console.log("⚠️ Twilio Module Skipped: Active credentials missing or placeholder found inside config.");
+      // Main operation ko block nahi karega agar notification glitch kare toh
     }
 
     /* ================= 6. FINAL SUCCESS RESOLUTION ================= */
     return res.status(201).json({
       success: true,
-      message: "Data securely integrated into MongoDB Atlas cloud and system alert matrices triggered.",
+      message: "Data securely integrated into MongoDB Atlas cloud and email alert triggered.",
       data: savedDocument,
     });
 
@@ -132,13 +121,11 @@ app.post("/", async (req, res) => {
 app.use((req, res) => {
   res.status(405).json({ 
     success: false, 
-    error: `System Policy Violation: Method '${req.method}' absolute forbidden on this router engine.` 
+    error: `System Policy Violation: Method '${req.method}' absolutely forbidden on this router engine.` 
   });
 });
 
 /* ================= 7. ENVIRONMENT-BASED LOCALHOST FALLBACK ================= */
-// Vercel serverless layer dynamically scale ho jata hai bina app.listen ke,
-// Par local development computer par check karne ke liye is wrapper ka use karein:
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
@@ -146,4 +133,4 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-export default app; // Vercel builder handles execution from default app exports
+export default app;
