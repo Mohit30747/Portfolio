@@ -1,23 +1,15 @@
 import mongoose from "mongoose";
 
-let isConnected = false; // Connection leakage rokne ke liye status check
+let isConnected = false;
 
 const connectDB = async () => {
-  if (isConnected) {
-    console.log("=> Using existing database connection");
-    return true;
-  }
-
-  if (!process.env.MONGO_URL) {
-    console.error("❌ MONGO_URL environment variable is missing!");
-    return false;
-  }
+  if (isConnected) return true;
+  if (!process.env.MONGO_URL) return false;
 
   try {
     const db = await mongoose.connect(process.env.MONGO_URL, {
-      bufferCommands: false, // Serverless environments ke liye recommended config
+      bufferCommands: false,
     });
-    
     isConnected = db.connections.readyState === 1;
     console.log("✅ MongoDB Connected Successfully");
     return true;
@@ -27,4 +19,4 @@ const connectDB = async () => {
   }
 };
 
-export default connectDB; // require ki jagah export default use karein
+export default connectDB;
