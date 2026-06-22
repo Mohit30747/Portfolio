@@ -9,166 +9,97 @@ dotenv.config();
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
-
+/* ================= 1. GLOBAL MIDDLEWARES ================= */
 app.use(express.json());
+app.use(cors({ origin: "*" })); // Complete CORS security bypass for browser
 
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
-
-/* ================= DATABASE MODEL ================= */
-
+/* ================= 2. DATABASE MODEL ================= */
 const MessageSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-    },
-
-    phone: {
-      type: String,
-      default: "",
-    },
-
-    address: {
-      type: String,
-      default: "",
-    },
-
-    message: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    phone: { type: String, trim: true, default: "" },
+    address: { type: String, trim: true, default: "" },
+    message: { type: String, required: true, trim: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const Message =
-  mongoose.models.Message ||
-  mongoose.model("Message", MessageSchema);
+const Message = mongoose.models.Message || mongoose.model("Message", MessageSchema);
 
-/* ================= EMAIL ================= */
-
-let transporter = null;
-
-if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS,
-    },
-  });
-}
-
-/* ================= TEST ROUTE ================= */
-
-app.get("/", (req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "Backend Running 🚀",
-  });
+/* ================= 3. NOTIFICATION SYSTEM ================= */
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
 });
 
-app.get("/api/contact", (req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "Contact API Ready 🚀",
-  });
-});
+/* ================= 4. DYNAMIC CATCH-ALL ROUTER ENGINE ================= */
+// Hum kisi path ko fix nahi karenge, jo bhi traffic vercel.json yahan bhejega use handle karenge
+app.use(async (req, res) => {
+  // CORS Response Headers explicitly declared for safety
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-/* ================= CONTACT ================= */
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
-app.post("/api/contact", async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ success: false, error: `Method ${req.method} not allowed.` });
+  }
+
   try {
     const { name, email, phone, address, message } = req.body;
+    console.log("📩 Core Engine Payload Recieved:", req.body);
 
     if (!name || !email || !message) {
-      return res.status(400).json({
-        success: false,
-        error: "Name, Email and Message are required",
-      });
+      return res.status(400).json({ success: false, error: "Validation Failure: Required fields missing." });
     }
 
-    const dbConnected = await connectDB();
-
-    if (!dbConnected) {
-      return res.status(500).json({
-        success: false,
-        error: "MongoDB Connection Failed",
-      });
+    const isDbConnected = await connectDB();
+    if (!isDbConnected) {
+      return res.status(500).json({ success: false, error: "Database engine layer connectivity failure." });
     }
 
-    const savedMessage = await Message.create({
-      name,
-      email,
-      phone,
-      address,
-      message,
-    });
+    // Insert data to live MongoDB Atlas
+    const savedDocument = await Message.create({ name, email, phone, address, message });
+    console.log("💾 MongoDB Cluster Write Success ID:", savedDocument._id);
 
-    if (transporter && process.env.NOTIFY_EMAIL) {
-      try {
-        await transporter.sendMail({
-          from: process.env.GMAIL_USER,
-          to: process.env.NOTIFY_EMAIL,
-          subject: `New Portfolio Message - ${name}`,
-          html: `
-            <h2>New Contact Message</h2>
-
-            <p><b>Name:</b> ${name}</p>
-            <p><b>Email:</b> ${email}</p>
-            <p><b>Phone:</b> ${phone || "-"}</p>
-            <p><b>Address:</b> ${address || "-"}</p>
-
-            <hr/>
-
-            <p>${message}</p>
-          `,
-        });
-      } catch (mailError) {
-        console.error(mailError);
-      }
+    // Live Email Trigger Pipeline
+    try {
+      const mailOptions = {
+        from: process.env.SENDING_EMAIL,
+        to: process.env.NOTIFY_EMAIL,
+        subject: `🔥 Portfolio Inquiry Alert from ${name}`,
+        text: `Naam: ${name}\nEmail: ${email}\nPhone: ${phone || "N/A"}\nAddress: ${address || "N/A"}\n\nMessage:\n${message}`,
+      };
+      await transporter.sendMail(mailOptions);
+      console.log("📧 Serverless Email Transport Complete.");
+    } catch (mailErr) {
+      console.error("❌ Non-fatal Notification Delivery Failure:", mailErr.message);
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
-      message: "Message Sent Successfully",
-      data: savedMessage,
+      message: "Data securely integrated into MongoDB Atlas cloud and email alerts initialized.",
+      data: savedDocument,
     });
-  } catch (error) {
-    console.error(error);
 
-    return res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+  } catch (error) {
+    console.error("💥 Critical Server Core Exception caught:", error);
+    return res.status(500).json({ success: false, error: "Internal Serverless Engine Error", details: error.message });
   }
 });
 
-/* ================= LOCAL ================= */
-
+/* ================= 5. LOCAL BOOTSTRAP WRAPPER ================= */
 const PORT = process.env.PORT || 5000;
-
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
-    console.log(`🚀 Server Running On Port ${PORT}`);
+    console.log(`🚀 Node Server booted successfully at: http://localhost:${PORT}`);
   });
 }
 
