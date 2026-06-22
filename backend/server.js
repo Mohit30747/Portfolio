@@ -11,7 +11,7 @@ const app = express();
 
 /* ================= 1. GLOBAL MIDDLEWARES ================= */
 app.use(express.json());
-app.use(cors({ origin: "*" })); // Complete CORS setup for Vercel
+app.use(cors({ origin: "*" })); // Complete CORS setup for Vercel cross-origin request
 
 /* ================= 2. DATABASE MODEL ================= */
 const MessageSchema = new mongoose.Schema(
@@ -36,9 +36,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/* ================= 4. MAIN ROUTE CONTROLLER ================= */
-// Vercel routes ko / layer par divert karta hai, isliye hum is dynamic engine standard ka use karenge
-const handleContactForm = async (req, res) => {
+/* ================= 4. ALL-CAPTURE CONTROLLER FOR SERVERLESS ================= */
+// Vercel routes ko root par throw karega ya direct subpath par, hum use dynamically capture karenge
+app.use(async (req, res) => {
+  // Strict check: Sirf POST method allow hona chahiye data flow ke liye
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, error: `Method ${req.method} not allowed.` });
   }
@@ -56,9 +57,11 @@ const handleContactForm = async (req, res) => {
       return res.status(500).json({ success: false, error: "Database connectivity layer failed." });
     }
 
+    // Connect and save target document to MongoDB Atlas
     const savedDocument = await Message.create({ name, email, phone, address, message });
     console.log("💾 MongoDB Cloud Storage Complete. ID:", savedDocument._id);
 
+    // Live Email Dispatch Layer
     try {
       const mailOptions = {
         from: process.env.SENDING_EMAIL,
@@ -82,18 +85,9 @@ const handleContactForm = async (req, res) => {
     console.error("💥 Core Engine Error:", error);
     return res.status(500).json({ success: false, error: "Internal Serverless Engine Error", details: error.message });
   }
-};
-
-// Handle both root paths and explicit sub-paths to block 404
-app.post("/", handleContactForm);
-app.post("/api/contact", handleContactForm);
-
-// Fallback for unmatched requests
-app.use((req, res) => {
-  res.status(404).json({ success: false, error: "Router engine path misconfiguration." });
 });
 
-/* ================= 5. LOCAL BOOTSTRAP ================= */
+/* ================= 5. LOCAL DEVELOPMENT ENGINE ================= */
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
