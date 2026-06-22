@@ -61,7 +61,7 @@ export default function Contact() {
     try {
       setLoading(true);
 
-      const response = await fetch("/api/contact", {
+      const response = await fetch("https://portfolio-backend-ochre-six-41.vercel.app/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,11 +75,12 @@ export default function Contact() {
         }),
       });
 
-      const data = await response.json();
+const text = await response.text();
+console.log("Response:", text);
 
       if (!response.ok) {
         throw new Error(
-          data.error || "Something went wrong"
+          text || "Something went wrong"
         );
       }
 
