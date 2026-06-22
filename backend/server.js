@@ -5,15 +5,13 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import connectDB from "./db.js";
 
-// Load all system environment variables
 dotenv.config();
 
 const app = express();
 
-/* ================= 1. ROBUST CORS & BODY PARSER ================= */
+/* ================= 1. CORS & PARSER ================= */
 app.use(express.json());
 
-// Strict Serverless CORS Handshakes
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
@@ -25,7 +23,7 @@ app.use((req, res, next) => {
   next();
 });
 
-/* ================= 2. DATABASE MODEL ================= */
+/* ================= 2. MODEL ================= */
 const MessageSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -39,7 +37,7 @@ const MessageSchema = new mongoose.Schema(
 
 const Message = mongoose.models.Message || mongoose.model("Message", MessageSchema);
 
-/* ================= 3. NOTIFICATION LAYER (NODEMAILER) ================= */
+/* ================= 3. EMAIL ================= */
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -48,20 +46,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/* ================= 4. ALL-CAPTURE ROUTE CONTROLLER ================= */
-// Vercel routes ko dynamically merge karta hai, isliye hum '*' use karenge
-app.all("*", async (req, res) => {
-  // Strict POST restriction check inside catcher
+/* ================= 4. CONTROLLER (FIXED ROUTE SYNTAX) ================= */
+// Purane app.all(*) ko hata kar seedhe use standard callback router engine par map kiya hai
+app.use(async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ 
-      success: false, 
-      error: `Method '${req.method}' forbidden on this runtime infrastructure.` 
-    });
+    return res.status(405).json({ success: false, error: `Method ${req.method} not allowed.` });
   }
 
   try {
     const { name, email, phone, address, message } = req.body;
-    console.log("📩 Payload Ingested at Serverless Layer:", req.body);
+    console.log("📩 Payload Ingested:", req.body);
 
     if (!name || !email || !message) {
       return res.status(400).json({ success: false, error: "Validation Failure: Name, email, and message are required." });
@@ -72,11 +66,9 @@ app.all("*", async (req, res) => {
       return res.status(500).json({ success: false, error: "Database handshakes failed." });
     }
 
-    // Write operation into MongoDB Atlas Cloud Cluster
     const savedDocument = await Message.create({ name, email, phone, address, message });
-    console.log("💾 Cluster Storage Complete. ID:", savedDocument._id);
+    console.log("💾 Storage Complete. ID:", savedDocument._id);
 
-    // Email dispatch pipeline
     try {
       const mailOptions = {
         from: process.env.SENDING_EMAIL,
@@ -85,14 +77,14 @@ app.all("*", async (req, res) => {
         text: `Naam: ${name}\nEmail: ${email}\nPhone: ${phone || "N/A"}\nAddress: ${address || "N/A"}\n\nMessage:\n${message}`,
       };
       await transporter.sendMail(mailOptions);
-      console.log("📧 Serverless Email Transport Complete.");
+      console.log("📧 Email Transport Complete.");
     } catch (mailErr) {
-      console.error("❌ Notification Delivery Failure:", mailErr.message);
+      console.error("❌ Email Failure:", mailErr.message);
     }
 
     return res.status(201).json({
       success: true,
-      message: "Data securely integrated into MongoDB Atlas cloud and alerts initialized.",
+      message: "Data securely integrated into MongoDB and alerts initialized.",
       data: savedDocument,
     });
 
@@ -102,7 +94,7 @@ app.all("*", async (req, res) => {
   }
 });
 
-/* ================= 5. LOCAL SERVER START WRAPPER ================= */
+/* ================= 5. LOCAL BOOTSTRAP ================= */
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
