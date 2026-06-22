@@ -3,10 +3,10 @@ import { useState } from "react";
 import { FaInstagram, FaGithub, FaWhatsapp, FaLinkedin } from "react-icons/fa";
 
 export default function Contact() {
-  const API_URL = "https://portfolio-backend-ochre-six-41.vercel.app";
+  // ✅ FIXED: Live integrated pipeline backend URL target config
+  const API_URL = "https://mohit-sharma-portfolio-two.vercel.app";
 
-  const instagram =
-    "https://www.instagram.com/pandat_.mohit.47?igsh=aDR3d29jZmY1bWdu";
+  const instagram = "https://www.instagram.com/pandat_.mohit.47?igsh=aDR3d29jZmY1bWdu";
   const github = "https://github.com/Mohit30747";
   const linkedin = "https://www.linkedin.com/in/mohit-sharma-127a87359";
   const whatsapp = "https://wa.me/919306429693";
@@ -54,58 +54,51 @@ export default function Contact() {
     setLoading(true);
 
     try {
+      // ✅ FIXED: Connected directly with vercel.json rewrite routing layer
       const response = await fetch(`${API_URL}/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-    },
-    mode: "cors",
-    body: JSON.stringify({
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      message: message.trim(),
-    }),
-  });
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+          message: message.trim(),
+        }),
+      });
 
-  const text = await response.text();
+      const text = await response.text();
 
-  console.log("STATUS:", response.status);
-  console.log("RESPONSE:", text);
+      console.log("STATUS:", response.status);
+      console.log("RESPONSE:", text);
 
-  let data = {};
+      let data = {};
 
-  try {
-    data = JSON.parse(text);
-  } catch (error) {
-  console.error("FULL ERROR:", error);
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+      }
 
-  alert(error.name);
-  alert(error.message);
-}
+      if (response.ok) {
+        alert(data.message || "Message sent successfully ✅");
 
-  if (response.ok) {
-    alert(data.message || "Message sent successfully ✅");
-
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      message: "",
-    });
-  } else {
-    alert(data.error || text || "Server Error");
-  }
-} catch (error) {
-  console.error("Fetch Error:", error);
-
-  alert("ERROR: " + error.message);
-
-  // alert("Failed to connect to server");
-  
-} finally {
+        setForm({
+          name: "",
+          email: "",
+          phone: "",
+          address: "",
+          message: "",
+        });
+      } else {
+        alert(data.error || text || "Server Error");
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      alert("ERROR: " + error.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -181,8 +174,8 @@ export default function Contact() {
             disabled={loading}
             className={`w-full py-3 rounded-full font-semibold ${
               loading
-                ? "bg-gray-800 cursor-not-allowed"
-                : " bg-blue-700 text-black hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.35)] transition-colors duration-500 "
+                ? "bg-gray-800 text-gray-400 cursor-not-allowed"
+                : "bg-blue-700 text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.35)] transition-all duration-500"
             }`}
           >
             {loading ? "Sending..." : "Send Message ✉️"}
@@ -192,46 +185,34 @@ export default function Contact() {
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
         <button
-  onClick={() => window.open(whatsapp, "_blank")}
-  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-green-500/50 bg-green-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-green-500/20 hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] active:scale-95"
->
-  <FaWhatsapp
-    size={28}
-    className="text-green-400 transition-transform duration-300 group-hover:rotate-12"
-  />
-  Chat on WhatsApp
-</button>
+          onClick={() => window.open(whatsapp, "_blank")}
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-green-500/50 bg-green-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-green-500/20 hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] active:scale-95"
+        >
+          <FaWhatsapp size={28} className="text-green-400 transition-transform duration-300 group-hover:rotate-12" />
+          Chat on WhatsApp
+        </button>
 
         <button
-  onClick={() => window.open(linkedin, "_blank")}
-  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-blue-500/50 bg-blue-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-blue-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
->
-  <FaLinkedin
-    size={28}
-    className="text-blue-400 transition-transform duration-300 group-hover:rotate-12"
-  />
-  Connect on LinkedIn
-</button>
+          onClick={() => window.open(linkedin, "_blank")}
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-blue-500/50 bg-blue-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-blue-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
+        >
+          <FaLinkedin size={28} className="text-blue-400 transition-transform duration-300 group-hover:rotate-12" />
+          Connect on LinkedIn
+        </button>
 
         <button
-  onClick={() => window.open(instagram, "_blank")}
-  className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-pink-500/50 bg-pink-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-pink-500/20 hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] active:scale-95"
->
-  <FaInstagram
-    size={28}
-    className="text-pink-400 transition-transform duration-300 group-hover:rotate-12"
-  />
-  Follow on Instagram
-</button>
+          onClick={() => window.open(instagram, "_blank")}
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-pink-500/50 bg-pink-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-pink-500/20 hover:shadow-[0_0_30px_rgba(236,72,153,0.5)] active:scale-95"
+        >
+          <FaInstagram size={28} className="text-pink-400 transition-transform duration-300 group-hover:rotate-12" />
+          Follow on Instagram
+        </button>
 
         <button
           onClick={() => window.open(github, "_blank")}
-          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-sky-500/50 bg-sky-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-sky-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95 "
+          className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-sky-500/50 bg-sky-500/10 px-6 py-5 text-white font-semibold transition-all duration-300 hover:scale-105 hover:bg-sky-500/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95"
         >
-          <FaGithub
-            size={28}
-            className="text-sky-400 transition-transform duration-300 group-hover:rotate-12"
-          />
+          <FaGithub size={28} className="text-sky-400 transition-transform duration-300 group-hover:rotate-12" />
           Visit GitHub
         </button>
       </div>
