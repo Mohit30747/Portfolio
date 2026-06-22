@@ -61,19 +61,22 @@ export default function Contact() {
     try {
       setLoading(true);
 
-      const response = await fetch("https://portfolio-backend-ochre-six-41.vercel.app/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          address: address.trim(),
-          message: message.trim(),
-        }),
-      });
+      const response = await fetch(
+  "https://portfolio-backend-ochre-six-41.vercel.app/api/contact",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      message: message.trim(),
+    }),
+  }
+);
 
 const text = await response.text();
 console.log("Response:", text);
