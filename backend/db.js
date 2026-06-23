@@ -28,6 +28,7 @@ const connectDB = async () => {
     cached.conn = await cached.promise;
 
     console.log("✅ MongoDB Connected Successfully");
+    console.log("📍 Database:", mongoose.connection.name);//new
 
     return cached.conn;
   } catch (error) {

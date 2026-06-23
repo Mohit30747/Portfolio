@@ -68,6 +68,7 @@ app.use(async (req, res) => {
     // Insert data to live MongoDB Atlas
     const savedDocument = await Message.create({ name, email, phone, address, message });
     console.log("💾 MongoDB Cluster Write Success ID:", savedDocument._id);
+    console.log("💾 DATA SAVED:", savedDocument._id);///new
 
     // Live Email Trigger Pipeline
     try {
