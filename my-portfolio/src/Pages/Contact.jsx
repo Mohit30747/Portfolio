@@ -60,10 +60,13 @@ export default function Contact() {
 
     try {
       setLoading(true);
-
-      const response = await fetch(
-  "https://portfolio-backend-ochre-six-41.vercel.app/api/contact",
-  {
+/////1
+      const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://portfolio-backend-ochre-six-41.vercel.app";
+////
+const response = await fetch(`${API_URL}/api/contact`, {  
     method: "POST",
     headers: {
       "Content-Type": "application/json",

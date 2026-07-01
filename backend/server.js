@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import connectDB from "./db.js";
+console.log("🔥 SERVER.JS HIT");
 
 dotenv.config();
 
@@ -64,6 +65,12 @@ app.use(async (req, res) => {
     if (!isDbConnected) {
       return res.status(500).json({ success: false, error: "Database engine layer connectivity failure." });
     }
+/////new line 
+const timestamp = new Date().toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+  dateStyle: "full",
+  timeStyle: "medium",
+});
 
     // Insert data to live MongoDB Atlas
     const savedDocument = await Message.create({ name, email, phone, address, message });
@@ -73,11 +80,27 @@ app.use(async (req, res) => {
     // Live Email Trigger Pipeline
     try {
       const mailOptions = {
-        from: process.env.SENDING_EMAIL,
-        to: process.env.NOTIFY_EMAIL,
-        subject: `🔥 Portfolio Inquiry Alert from ${name}`,
-        text: `Naam: ${name}\nEmail: ${email}\nPhone: ${phone || "N/A"}\nAddress: ${address || "N/A"}\n\nMessage:\n${message}`,
-      };
+  from: process.env.SENDING_EMAIL,
+  to: process.env.NOTIFY_EMAIL,
+  subject: `🔥 Portfolio Inquiry Alert from ${name}`,
+  html: `
+    <h2>📩 New Portfolio Message</h2>
+
+    <p><strong>👤 Name:</strong> ${name}</p>
+    <p><strong>📧 Email:</strong> ${email}</p>
+    <p><strong>📱 Phone:</strong> ${phone || "N/A"}</p>
+    <p><strong>📍 Address:</strong> ${address || "N/A"}</p>
+
+    <hr>
+
+    <p><strong>💬 Message:</strong></p>
+    <p>${message}</p>
+
+    <hr>
+
+    <p><strong>🕒 Date & Time:</strong> ${timestamp}</p>
+  `,
+};
       await transporter.sendMail(mailOptions);
       console.log("📧 Serverless Email Transport Complete.");
     } catch (mailErr) {
