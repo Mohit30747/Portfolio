@@ -57,6 +57,11 @@ export default function Contact() {
       alert("Please enter a valid email");
       return;
     }
+    const phoneRegex = /^\+?\d{10,15}$/;
+    if (!phoneRegex.test(phone.trim())){
+     alert("please enter a valid phone number");
+     return;
+    }
 
     try {
       setLoading(true);
@@ -154,6 +159,9 @@ className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transitio
             placeholder="Your Phone"
             value={form.phone}
             onChange={handleChange}
+            maxLength={10}
+            pattern="[0-9]{10}"
+            inputMode="numeric"
             className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 transition-all duration-300 outline-none focus:border-blue-500 focus:shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:border-white/50"
           />
 

@@ -62,6 +62,8 @@ app.use(async (req, res) => {
     }
 
     const isDbConnected = await connectDB();
+    console.log("Host:", mongoose.connection.host);
+console.log("Database:", mongoose.connection.name);
     if (!isDbConnected) {
       return res.status(500).json({ success: false, error: "Database engine layer connectivity failure." });
     }
@@ -76,6 +78,8 @@ const timestamp = new Date().toLocaleString("en-IN", {
     const savedDocument = await Message.create({ name, email, phone, address, message });
     // console.log("💾 MongoDB Cluster Write Success ID:", savedDocument._id);
     console.log("💾 DATA SAVED:", savedDocument._id);///new
+
+    const allMessages = await Message.find();
 
     // Live Email Trigger Pipeline
     try {
